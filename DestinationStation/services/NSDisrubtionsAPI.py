@@ -14,4 +14,4 @@ class NSDisrubtionsAPI:
             url, headers={"Ocp-Apim-Subscription-Key": 'de123543b4934bbdaea411ccb85e6a41'}
         )
 
-        return str(request.json())
+        return request.json()

@@ -1,4 +1,5 @@
 import pickle
+from controllers.DisrubtionsController import DisrubtionsController
 
 import flask
 from flask import Flask
@@ -7,7 +8,6 @@ from datetime import datetime
 import sklearn
 app = Flask(__name__)
 
-from services.NSDisrubtionsAPI import NSDisrubtionsAPI
 
 with open('model/MLPRegressor.pickle', 'rb') as file:
      model = pickle.load(file)
@@ -26,10 +26,9 @@ def delays():
     return 'Hello World!'
 
 
-@app.route('/test',  methods=['GET'])
-def test():
-     stationCode = 'ASD'
-     data = NSDisrubtionsAPI.getDisrubtion(stationCode)
+@app.route('/disrubtions',  methods=['GET'])
+def disrubtions():
+     data = DisrubtionsController.getDisrubtions('15:15','ASD')
      return data
 
 
