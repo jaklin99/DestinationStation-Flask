@@ -1,6 +1,4 @@
 import requests
-import datetime
-#from flask_restful import Resource
 
 class NSDisrubtionsAPI:
 
@@ -9,24 +7,16 @@ class NSDisrubtionsAPI:
 
     def getDisrubtions(self, stationCode, time):
         url = f'https://gateway.apiportal.ns.nl/reisinformatie-api/api/v3/disruptions?type=MAINTENANCE'
-        print(url)
-
         request = requests.get(
             url, headers={"Ocp-Apim-Subscription-Key": self.key}
         )
         data = request.json()
-        d=0    #used to iterate over the data
+        d = 0                                                                             #used to iterate over the data
         for record in data:
-            for delay in data[d]['publicationSections'][0]['section']['stations']:   #iterates over every station mentioned in the data
+            for delay in data[d]['publicationSections'][0]['section']['stations']:      #iterates over every station mentioned in the data
              if delay['stationCode'] == stationCode:
-                 if data[d]['end'] > time > data[d]['start']:
+                 if data[d]['end'] > time > data[d]['start']:                           #format of time is e.g. '2021-05-26T06:15:00+0200'
                      return '1'
             d = d+1
         return '0'
-        # if data:
-        #     if data['type'] == "MAINTENANCE":
-        #         if datetime.data['end'] > datetime.time > datetime.data['start']:
-        #             return True
-        # else:
-        #     return 'kur'
 
