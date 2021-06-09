@@ -3,7 +3,7 @@ from datetime import datetime
 import sklearn
 import pickle
 
-from services.DataProcesingService import simplifyNsAdvices, join_rides_with_disruptions, add_weather_data, get_model_features
+from services.DataProcesingService import simplifyNsAdvices, join_rides_with_disruptions, add_weather_data, get_model_features, add_predictions
 from services.NSRideAdviceAPI import NSRideAdviceAPI
 from services.NSDisrubtionsAPI import NSDisrubtionsAPI
 from services.WeatherAPI import WeatherAPI
@@ -43,9 +43,11 @@ def delays():
 
     features = get_model_features(rides)
 
-    predictions = model.predict(features)
+    predictions = list(model.predict(features))
 
-    return {"rides": predictions}
+    rides = add_predictions(rides, predictions)
+
+    return {"rides": rides}
 
 
 if __name__ == '__main__':
