@@ -1,30 +1,21 @@
-import pickle
-from services.NSDisrubtionsAPI import NSDisrubtionsAPI
-
-import flask
-from flask import Flask
-from flask import request
+from flask import Flask, request
 from datetime import datetime
 import sklearn
-from flask_restful import Api, Resource
+import pickle
+
+from services.DataProcesingService import simplifyNsAdvices, join_rides_with_disruptions
+from services.NSRideAdviceAPI import NSRideAdviceAPI
+from services.NSDisrubtionsAPI import NSDisrubtionsAPI
 
 app = Flask(__name__)
-#api = Api(app)
-
-# class HelloWorld(Resource):
-#     def get(self):
-#         return 'Hello world'
-
-
-
-#api.add_resource(NSDisrubtionsAPI, "/disrubtions")
-
 
 with open('model/MLPRegressor.pickle', 'rb') as file:
-     model = pickle.load(file)
+    model = pickle.load(file)
+
+advicesApi = NSRideAdviceAPI("de123543b4934bbdaea411ccb85e6a41")
+distuptionsApi = NSDisrubtionsAPI("de123543b4934bbdaea411ccb85e6a41")
 
 
-# /delays?departureStation=ASD&destinationStation=UT&rideTime=2021-06-31T13:59
 @app.route('/delays',  methods=['GET'])
 def delays():
     departure = request.args.get('departureStation', 'UT')
@@ -34,14 +25,14 @@ def delays():
         datetime.now().strftime("%Y-%m-%dT%H:%M")
     )
 
-    return 'Hello World!'
+    rides = simplifyNsAdvices(advicesApi.getAdvice(
+        departure, destination, rideTime)['trips'])
 
+    disruptions = distuptionsApi.getDisrubtions(
+        stationCodes=['ASD', 'UT'], rides=rides)
 
-@app.route('/disrubtions',  methods=['GET'])
-def disrubtions():
-     ns = NSDisrubtionsAPI()
-     data = ns.getDisrubtions(stationCode='ASD', time='2021-05-26T06:15:00+0200')
-     return data
+    rides = join_rides_with_disruptions(rides, disruptions)
+    return {"rides": rides}
 
 
 if __name__ == '__main__':
