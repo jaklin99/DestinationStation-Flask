@@ -1,4 +1,5 @@
 from flask import Flask, request
+from flask_cors import CORS
 from datetime import datetime
 import sklearn
 import pickle
@@ -10,6 +11,7 @@ from services.WeatherAPI import WeatherAPI
 
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/delays": {"origins": "http://localhost:3000"}})
 
 with open('model/MLPRegressor.pickle', 'rb') as file:
     model = pickle.load(file)
@@ -51,4 +53,4 @@ def delays():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
